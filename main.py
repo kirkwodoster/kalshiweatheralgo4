@@ -7,7 +7,6 @@ from weatheralgo.model import weather_model
 from weatheralgo import util_functions
 from weatheralgo import scrape_functions
 from weatheralgo import trade_functions
-from weatheralgo.input_variables import Input
 from weatheralgo.clients import client
 from datetime import datetime, timedelta
 import pytz
@@ -35,6 +34,31 @@ from weatheralgo import inputs
 
 if __name__ == "__main__":
     
+
+    
+    #  model_inputs = inputs.model_input
+    #  for i in inputs.locations:
+    #     market, timezone, url, xml_url = model_inputs(i)
+    #     # print(market)
+    #     x =  scrape_functions.trade_today(market, timezone)
+    #     # print(x)
+    
+    #     today = datetime.now(timezone)
+    #     todays_date = today.strftime('%y%b%d').upper()
+    #     event = f'{market}-{todays_date}'
+    #     orders = client.get_orders(event_ticker=event)['orders']
+    #     # print(orders)
+        
+        
+    #     if len(orders) >= 1:
+    #         order_list = [scrape_functions.iso_to_local_time(iso_string = i['created_time'], timezone=str(timezone)) for i in orders]
+    #         # print(order_list)
+    #         # print(today.date())
+    #         if str(today.date()) in order_list:
+    #             print(ru)
+    #             print(market)
+    #             print(today.date())
+    #             print(order_list)
  
     driver =  weather_model.initialize_driver()
     

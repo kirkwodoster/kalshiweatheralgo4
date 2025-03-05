@@ -45,39 +45,36 @@ def scrape_dynamic_table(driver, lr_length, count, scraping_hours, yes_price, lo
     
 
     market_dict = {
-        
-        "KXHIGHDEN": None,
-        "KXHIGHCHI": None,
-        "KXHIGHMIA": None,
-        "KXHIGHAUS": None,
-        "KXHIGHPHIL": None,
-        "KXHIGHLAX": None
+        "KXHIGHDEN": [None,None],
+        "KXHIGHCHI": [None,None],
+        "KXHIGHMIA": [None,None],
+        "KXHIGHAUS": [None,None],
+        "KXHIGHPHIL": [None,None],
+        "KXHIGHLAX": [None,None]
                 }
-    
     
     while True:
         
         model_inputs = inputs.model_input
         
-        for i in locations:
+        for i,j in zip(locations, market_dict.keys()):
             market, timezone, url, xml_url = model_inputs(i)
-            
-
-       
+        
             forecasted_high = inputs.forecasted_high_gate(
                                                          market_dict=market_dict,
                                                          market=market,
                                                          xml_url=xml_url,
                                                          timezone=timezone
                                                         )
-     
-
             
-            
+            # forecasted_high_date = scrape_functions.xml_scrape(xml_url, timezone)[0]
             if forecasted_high:
-                    current_timezone, forecasted_high_date = forecasted_high
-                    market_dict[market] = current_timezone.date()
-                        
+                current_timezone, forecasted_high_date = forecasted_high
+                current_timezone = current_timezone.date()
+                market_dict[market] = [current_timezone, forecasted_high_date]
+                
+            
+            forecasted_high_date = market_dict[j][1]       
 
             permission_scrape = scrape_functions.permission_to_scrape(
                                                                     market=market, 

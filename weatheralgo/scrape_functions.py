@@ -80,11 +80,10 @@ def trade_today(market, timezone):
         todays_date = today.strftime('%y%b%d').upper()
         event = f'{market}-{todays_date}'
         orders = client.get_orders(event_ticker=event)['orders']
-        
-        
+    
         if len(orders) >= 1:
             order_list = [iso_to_local_time(iso_string = i['created_time'], timezone=str(timezone)) for i in orders]
-            if today.date() in order_list:
+            if str(today.date()) in order_list:
              
                 return True
             else:
