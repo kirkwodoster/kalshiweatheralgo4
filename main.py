@@ -34,11 +34,25 @@ from weatheralgo import inputs
 
 if __name__ == "__main__":
     
+    # xml_url = "https://forecast.weather.gov/MapClick.php?lat=33.9425&lon=-118.409&FcstType=digitalDWML"
+    # scraping_hours = [60,60]
+    # timezone = pytz.timezone("America/Los_Angeles")
+    # expected_high_date = scrape_functions.xml_scrape(xml_url, timezone)[0]
+    # today = datetime.now(timezone)
+    # start_scrape = today >= expected_high_date - timedelta(minutes=scraping_hours[0])
+    # end_scrape = today <= expected_high_date + timedelta(minutes=scraping_hours[1])
+    
+    # print(end_scrape)
+
+
     driver =  weather_model.initialize_driver()
     
+    scraping_inputs = inputs.scrape_inputs
+    
     util_functions.logging_settings()
+    
     try:
-       weather_model.scrape_dynamic_table(driver)
+       weather_model.scrape_dynamic_table(driver, **scraping_inputs)
         # scrape_functions.scrape_temperature(driver=driver,url=url)
     except KeyboardInterrupt:
         logging.info("Script interrupted by user.")

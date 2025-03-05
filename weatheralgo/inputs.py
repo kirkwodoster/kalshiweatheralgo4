@@ -1,22 +1,20 @@
 
-lr_length = 7
+import pytz
+from datetime import datetime
+from weatheralgo import scrape_functions
+import logging
+
+lr_length = 5
 hour = 2
-scraping_hours = [500,500]
+scraping_hours = [60,60]
 yes_price = 1
 count = 1
 
-scrape_inputs = {
-    'lr_length': lr_length,
-    'hour': hour,
-    'scraping_hours': scraping_hours,
-    'yes_price': yes_price
-        
-                }
 
 all_markets = {
             "DENVER": {
                 "SERIES": "KXHIGHDEN",
-                "TIMEZONE": "America/Denver",
+                "TIMEZONE": "US/Mountain",
                 "URL": f"https://www.weather.gov/wrh/timeseries?site=KDEN&hours={hour}",
                 "XML_URL": "https://forecast.weather.gov/MapClick.php?lat=39.8589&lon=-104.6733&FcstType=digitalDWML",
             },
@@ -54,3 +52,62 @@ all_markets = {
 
 locations = all_markets.keys()
 market_inputs = list(all_markets['DENVER'].keys())
+
+
+
+
+
+
+# class InputLoop:
+#     def __init__(self, lr_length, scraping_hours, count, yes_price):
+#         self.lr_length = 6
+#         self.scraping_hours = [60,60]
+#         self.count = 1
+#         self.yes_price = 85
+    
+#     def input_loop(self, markets, all_markets):
+#         self.market = all_markets[markets]['SERIES']
+#         self.timezone =  pytz.timezone(all_markets[markets]['TIMEZONE'])
+#         self.url = all_markets[markets]['URL']
+#         self.xml_url = all_markets[markets]['XML_URL']
+        
+        
+def model_input(markets):
+    try:
+        market = all_markets[markets]['SERIES']
+        timezone =  pytz.timezone(all_markets[markets]['TIMEZONE'])
+        url = all_markets[markets]['URL']
+        xml_url = all_markets[markets]['XML_URL']
+        return market, timezone, url, xml_url
+    
+    except Exception as e:
+        logging.error(f"model_input: {e}")
+
+
+
+def forecasted_high_gate(market_dict, market, xml_url, timezone):
+    
+    try:
+        current_timezone = datetime.now(timezone)
+
+        if market_dict[market] != current_timezone.date():
+            
+            current_timezone = datetime.now(timezone)
+            expected_high_date = scrape_functions.xml_scrape(xml_url, timezone)[0]
+
+            
+            return current_timezone, expected_high_date
+        else:
+            return False
+    except Exception as e:
+        logging.error(f"forecasted_high_gate: {e}")
+    
+
+scrape_inputs = {
+    'lr_length': lr_length,
+    'count': count,
+    'scraping_hours': scraping_hours,
+    'yes_price': yes_price,
+    'locations': locations      
+                }
+

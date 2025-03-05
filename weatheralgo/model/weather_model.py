@@ -33,7 +33,7 @@ def initialize_driver():
 
 
 # Main function to scrape and process data
-def scrape_dynamic_table(driver):
+def scrape_dynamic_table(driver, lr_length, count, scraping_hours, yes_price, locations):
     
     util_functions.logging_settings()
     temperatures = []
@@ -42,62 +42,77 @@ def scrape_dynamic_table(driver):
     loop_counter = 0
 
     rand = random.randint(2, 4)
-    timezone =  pytz.timezone("America/Los_Angeles")
     
 
-    today = datetime.now(timezone).date() + timedelta(hours=3)
-    # expected_high_date = scrape_functions.xml_scrape(xml_url, timezone)[0]
-
+    market_dict = {
+        
+        "KXHIGHDEN": None,
+        "KXHIGHCHI": None,
+        "KXHIGHMIA": None,
+        "KXHIGHAUS": None,
+        "KXHIGHPHIL": None,
+        "KXHIGHLAX": None
+                }
+    
+    
     while True:
         
-        lr_length = inputs.lr_length
-        scraping_hours = inputs.scraping_hours
-        count = inputs.count
-        yes_price = inputs.yes_price
+        model_inputs = inputs.model_input
+        
+        for i in locations:
+            market, timezone, url, xml_url = model_inputs(i)
 
-        current_local_date = datetime.now(timezone).date() + timedelta(hours=3)
-        if today != current_local_date:
-           today = current_local_date
-           
-           
-        for i in inputs.locations:
-            market = inputs.all_markets[i]['SERIES']
-            timezone =  pytz.timezone(inputs.all_markets[i]['TIMEZONE'])
-            url = inputs.all_markets[i]['URL']
-            xml_url = inputs.all_markets[i]['XML_URL']   
-           
-            expected_high_date = scrape_functions.xml_scrape(xml_url, timezone)[0]
+       
+            forecasted_high = inputs.forecasted_high_gate(
+                                                         market_dict=market_dict,
+                                                         market=market,
+                                                         xml_url=xml_url,
+                                                         timezone=timezone
+                                                        )
+     
+
             
+            
+            if forecasted_high:
+                    current_timezone, forecasted_high_date = forecasted_high
+                    market_dict[market] = current_timezone.date()
+                        
+ 
 
             permission_scrape = scrape_functions.permission_to_scrape(
                                                                     market=market, 
                                                                     timezone=timezone, 
                                                                     scraping_hours=scraping_hours, 
-                                                                    expected_high_date=expected_high_date,
+                                                                    expected_high_date=forecasted_high_date,
                                                                     )
             
             scrape = scrape_functions.scrape_temperature(driver=driver, url=url)
+            
+            print(f'forecasted_high_date {forecasted_high_date}')
 
             time.sleep(rand)
             try:
-
+                print(f'Permission Scrape: {permission_scrape} market: {market}')
                 if permission_scrape:
 
                     current_temp = scrape[1][-1]
                     temperatures = scrape[1]
                     
-                    print(market)
-                    print(current_temp)
-                    print(temperatures)
-                    print(f'expected high date {expected_high_date}')
+                    print(f'Market: {market}')
+                    print(f'Current Temp: {current_temp}')
+                    print(f'Temperature: {temperatures}')
+                    print(f'expected high date {forecasted_high_date}')
                     
                     current_temp_is_max = trade_functions.if_temp_reaches_max(
-                                                                            current_temp=current_temp, 
-                                                                            market = market, 
-                                                                            yes_price=yes_price,
-                                                                            count=count,
-                                                                            temperatures=temperatures,
+                                                                              current_temp=current_temp, 
+                                                                              market = market, 
+                                                                              yes_price=yes_price,
+                                                                              count=count,
+                                                                              temperatures=temperatures,
                                                                             )
+                    
+                    if current_temp_is_max:
+                        logging.info('Max Temperature Reached')
                     
                     trade_criteria = trade_functions.trade_criteria_met(
                                                                         temperatures=temperatures, 
@@ -106,19 +121,19 @@ def scrape_dynamic_table(driver):
                                                                         yes_price=yes_price,
                                                                         count=count
                                                                         )
-                    print(current_temp_is_max)
-                    print(trade_criteria)
                     
-                    if current_temp_is_max:
-                        logging.info('Max Temperature Reached')
+                    print(f'Max Temp {current_temp_is_max}')
+                    print(f'Trade Criteria: {trade_criteria}')
+                
 
                     if trade_criteria:
                         logging.info('Trade Criteria Met')
                     
                     else:
-                        time.sleep(rand)
+                        time.sleep(rand)    
                     
                     is_order_filled = util_functions.order_filled(market)
+                    
                     if is_order_filled:
                         logging.info(f'Order filled and saved: {market}')
                     else:

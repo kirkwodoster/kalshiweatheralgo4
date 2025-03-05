@@ -55,11 +55,12 @@ def if_temp_reaches_max(current_temp: int, market: str, yes_price: int, count: i
 def trade_criteria_met(temperatures: list, lr_length: int, 
                        market: str, yes_price: int, count: int):
     try:
-
         highest_temp = int(np.array(temperatures).max())
         order_pipeline_check = util_functions.order_pipeline(highest_temp=highest_temp, market=market)
+        
+        length = len(temperatures) >= lr_length
 
-        if order_pipeline_check:
+        if order_pipeline_check and length:
             x = np.arange(0, lr_length).reshape(-1,1)
             temp_length = temperatures[-lr_length:]
             regressor = LinearRegression().fit(x, temp_length)
