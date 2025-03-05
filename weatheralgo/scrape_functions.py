@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from selenium.webdriver.common.by import By
 from datetime import datetime, timedelta
+from dateutil import tz
 import requests
 import xml.etree.ElementTree as ET
 import time
@@ -64,19 +65,30 @@ def xml_scrape(xml_url, timezone):
       print(e)
 
 
+def iso_to_local_time(iso_string, timezone):
+    
+    utc_time = datetime.fromisoformat(iso_string.replace('Z', '+00:00'))
+    local_tz = tz.gettz(timezone)
+    local_time = utc_time.astimezone(local_tz).date()
+    
+    return local_time.isoformat()
+
 def trade_today(market, timezone):
 
     try:
         today = datetime.now(timezone)
-        todaysDate = today.strftime('%y%b%d').upper()
-        event = f'{market}-{todaysDate}'
+        todays_date = today.strftime('%y%b%d').upper()
+        event = f'{market}-{todays_date}'
         orders = client.get_orders(event_ticker=event)['orders']
         
+        
         if len(orders) >= 1:
-           
-            return True
-        else:
-            return False
+            order_list = [iso_to_local_time(iso_string = i['created_time'], timezone=str(timezone)) for i in orders]
+            if today.date() in order_list:
+             
+                return True
+            else:
+                return False
 
     except Exception as e:
         logging.error(f"Error Trade Today: {e}")

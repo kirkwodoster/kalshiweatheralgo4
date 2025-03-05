@@ -61,6 +61,7 @@ def scrape_dynamic_table(driver, lr_length, count, scraping_hours, yes_price, lo
         
         for i in locations:
             market, timezone, url, xml_url = model_inputs(i)
+            
 
        
             forecasted_high = inputs.forecasted_high_gate(
@@ -77,7 +78,6 @@ def scrape_dynamic_table(driver, lr_length, count, scraping_hours, yes_price, lo
                     current_timezone, forecasted_high_date = forecasted_high
                     market_dict[market] = current_timezone.date()
                         
- 
 
             permission_scrape = scrape_functions.permission_to_scrape(
                                                                     market=market, 

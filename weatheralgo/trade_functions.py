@@ -65,7 +65,7 @@ def trade_criteria_met(temperatures: list, lr_length: int,
             temp_length = temperatures[-lr_length:]
             regressor = LinearRegression().fit(x, temp_length)
             slope = regressor.coef_
-            if slope <= 0:
+            if slope < 0:
                 logging.info(f"Slope: {slope}")
                 logging.info(f"X: {temp_length}")
                 logging.info(f"Max Temp: {highest_temp}")
