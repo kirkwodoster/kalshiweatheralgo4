@@ -128,9 +128,9 @@ def order_pipeline(highest_temp: int, market: str, timezone):
     except:
         None
 
-def order_filled(market):
+def order_filled(market, timezone):
     try:
-        market_ticker = weather_config(market)
+        market_ticker = weather_config(market, timezone=timezone)
         orders = client.get_orders(ticker=market_ticker)['orders']
         
         if orders:  # Check if there are any orders
