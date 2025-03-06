@@ -1,8 +1,9 @@
-import datetime as dt
 import csv
 import logging
 from datetime import datetime
 import logging
+
+
 
 from weatheralgo.clients import client
 
@@ -12,7 +13,7 @@ def trade_to_csv(order_id : str, ticker: str):
         trade_data = client.get_fills(order_id = order_id)['fills'][0]
         #Formatting Time
         raw_date = trade_data['created_time']
-        raw_date = dt.datetime.strptime(raw_date, '%Y-%m-%dT%H:%M:%S.%fZ')  
+        raw_date = datetime.strptime(raw_date, '%Y-%m-%dT%H:%M:%S.%fZ')  
         year = raw_date.strftime('%Y-%m-%d')
         time = raw_date.strftime('%H:%M:%S')
         #Ticker
@@ -54,54 +55,55 @@ def trade_to_csv(order_id : str, ticker: str):
         logging.error(f"Error in CSV Write: {e}")
 
 
-def weather_config(market):
-        try:
-            today = dt.date.today()
-            todays_date = today.strftime('%y%b%d').upper()
-            event_ticker = f'{market}-{todays_date}'
-                
-            event_list = []
-            events = client.get_event(event_ticker)  # Ensure getEvent is defined or imported
-            for i in range(len(events['markets'])):
-                event_list.append(events['markets'][i]['ticker'])
-
-            #temp_adj = []
-            temp_adj = []
-
-            event_list = [i.split('-', 2)[-1] for i in event_list]
-            counter = 0
-            for i in event_list:
-                if "T" in i:
-                    counter += 1
-                    remove_t = i.strip('T')
-                    if counter == 1:
-                        temp_adj.append(int(remove_t)-2)
-                    elif counter == 2:
-                        temp_adj.append(int(remove_t)+1) # adjust for rounding error
-                        
-                elif "B" in i:
-                    remove_b = i.strip('B')
-                    temp_minus_5 = float(remove_b) - .5
-                    #temp_add_5 = float(remove_b) + .5
-                    #degree_range = [int(temp_minus_5) , int(temp_add_5)]
-                    temp_adj.append(int(temp_minus_5))
+def weather_config(market, timezone): 
+    try:
+        today = datetime.now(timezone)
+        todays_date = today.strftime('%y%b%d').upper()
+        event_ticker = f'{market}-{todays_date}'
             
-            degree_dictionary = {k: v for k, v in zip(event_list, temp_adj)}
-            return degree_dictionary
-        
-        except Exception as e:
-            logging.info(f'weather_config: {e}')
+        event_list = []
+        events = client.get_event(event_ticker)  # Ensure getEvent is defined or imported
+        for i in range(len(events['markets'])):
+            event_list.append(events['markets'][i]['ticker'])
 
+        #temp_adj = []
+        temp_adj = []
 
-def order_pipeline(highest_temp: int, market: str):
+        event_list = [i.split('-', 2)[-1] for i in event_list]
+        counter = 0
+        for i in event_list:
+            if "T" in i:
+                counter += 1
+                remove_t = i.strip('T')
+                if counter == 1:
+                    temp_adj.append(int(remove_t)-2)
+                elif counter == 2:
+                    temp_adj.append(int(remove_t)+1) # adjust for rounding error
+                    
+            elif "B" in i:
+                remove_b = i.strip('B')
+                temp_minus_5 = float(remove_b) - .5
+                #temp_add_5 = float(remove_b) + .5
+                #degree_range = [int(temp_minus_5) , int(temp_add_5)]
+                temp_adj.append(int(temp_minus_5))
+
+        degree_dictionary = {k: v for k, v in zip(event_list, temp_adj)}
+       
+        return degree_dictionary
+    
+    except Exception as e:
+        logging.info(f'weather_config: {e}')
+    
+
+def order_pipeline(highest_temp: int, market: str, timezone):
     
     try:
-        today = dt.date.today()
+        today = datetime.now(timezone)
         todaysDate = today.strftime('%y%b%d').upper()
         event = f'{market}-{todaysDate}'
 
     # tempMarket = None
-        listofMarkets = weather_config(market)
+        listofMarkets = weather_config(market=market, timezone=timezone)
         minMarketTemp = list(listofMarkets.values())[0]
         maxMarketTemp = list(listofMarkets.values())[-1]
         listofMarketsAdj = dict(list(listofMarkets.items())[1:-1])

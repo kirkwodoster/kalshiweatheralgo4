@@ -12,11 +12,11 @@ from weatheralgo import util_functions
 
 
 
-def trade_execution(market: str, temperatures: list, yes_price: int, count: int):
+def trade_execution(market: str, temperatures: list, yes_price: int, count: int, timezone):
     try:
         highest_temp = np.array(temperatures).max()
         highest_temp = int(highest_temp)
-        market_ticker = util_functions.order_pipeline(highest_temp=highest_temp, market=market)
+        market_ticker = util_functions.order_pipeline(highest_temp=highest_temp, market=market, timezone=timezone)
         
         balance_min = count * yes_price
         balance = client.get_balance()['balance'] > balance_min
@@ -34,9 +34,9 @@ def trade_execution(market: str, temperatures: list, yes_price: int, count: int)
     except Exception as e:
         logging.info(f'trade_execution : {e}')
     
-def if_temp_reaches_max(current_temp: int, market: str, yes_price: int, count: int, temperatures: list):
+def if_temp_reaches_max(current_temp: int, market: str, yes_price: int, count: int, temperatures: list, timezone):
     try:
-        market_temp_max = list(util_functions.weather_config(market).items())[-1][1]
+        market_temp_max = list(util_functions.weather_config(market=market, timezone=timezone).items())[-1][1]
         
         balance_min = count * yes_price
         balance = client.get_balance()['balance'] > balance_min
@@ -53,10 +53,10 @@ def if_temp_reaches_max(current_temp: int, market: str, yes_price: int, count: i
     
     
 def trade_criteria_met(temperatures: list, lr_length: int, 
-                       market: str, yes_price: int, count: int):
+                       market: str, yes_price: int, count: int, timezone):
     try:
         highest_temp = int(np.array(temperatures).max())
-        order_pipeline_check = util_functions.order_pipeline(highest_temp=highest_temp, market=market)
+        order_pipeline_check = util_functions.order_pipeline(highest_temp=highest_temp, market=market, timezone=timezone)
         
         length = len(temperatures) >= lr_length
 

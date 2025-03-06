@@ -55,7 +55,11 @@ def scrape_dynamic_table(driver, lr_length, count, scraping_hours, yes_price, lo
     
     while True:
         
+        # cali_time = datetime.now(pytz.timezone("America/Los_Angeles"))
+        
+        
         model_inputs = inputs.model_input
+        print(market_dict)
         
         for i,j in zip(locations, market_dict.keys()):
             market, timezone, url, xml_url = model_inputs(i)
@@ -106,6 +110,7 @@ def scrape_dynamic_table(driver, lr_length, count, scraping_hours, yes_price, lo
                                                                               yes_price=yes_price,
                                                                               count=count,
                                                                               temperatures=temperatures,
+                                                                              timezone=timezone
                                                                             )
                     
                     if current_temp_is_max:
@@ -116,7 +121,8 @@ def scrape_dynamic_table(driver, lr_length, count, scraping_hours, yes_price, lo
                                                                         lr_length=lr_length,
                                                                         market=market,
                                                                         yes_price=yes_price,
-                                                                        count=count
+                                                                        count=count,
+                                                                        timezone=timezone
                                                                         )
                     
                     print(f'Max Temp {current_temp_is_max}')

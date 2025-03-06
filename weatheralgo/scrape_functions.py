@@ -88,6 +88,8 @@ def trade_today(market, timezone):
                 return True
             else:
                 return False
+        else:
+            return False
 
     except Exception as e:
         logging.error(f"Error Trade Today: {e}")

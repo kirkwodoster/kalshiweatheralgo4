@@ -7,7 +7,7 @@ import logging
 lr_length = 5
 hour = 2
 scraping_hours = [60,60]
-yes_price = 85
+yes_price = 1
 count = 1
 
 
@@ -86,7 +86,7 @@ def forecasted_high_gate(market_dict, market, xml_url, timezone):
     try:
         current_timezone = datetime.now(timezone)
 
-        if market_dict[market] != current_timezone.date():
+        if market_dict[market][0] != current_timezone.date():
             
             current_timezone = datetime.now(timezone)
             expected_high_date = scrape_functions.xml_scrape(xml_url, timezone)[0]
