@@ -42,7 +42,7 @@ def if_temp_reaches_max(current_temp: int, market: str, yes_price: int, count: i
         balance = client.get_balance()['balance'] > balance_min
         
         if current_temp >= market_temp_max and balance:
-            trade_execution(market=market, temperatures=temperatures, yes_price=yes_price, count=count)
+            trade_execution(market=market, temperatures=temperatures, yes_price=yes_price, count=count, timezone=timezone)
             logging.info(f"Max temp reached and order created {current_temp}")
          
             return True
@@ -69,7 +69,7 @@ def trade_criteria_met(temperatures: list, lr_length: int,
                 logging.info(f"Slope: {slope}")
                 logging.info(f"X: {temp_length}")
                 logging.info(f"Max Temp: {highest_temp}")
-                trade_execution(market=market, temperatures=temperatures, yes_price=yes_price, count=count)
+                trade_execution(market=market, temperatures=temperatures, yes_price=yes_price, count=count, timezone=timezone)
                 return True
             else:
                 return False

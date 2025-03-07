@@ -122,7 +122,8 @@ def scrape_dynamic_table(driver, lr_length, count, scraping_hours, yes_price, lo
                                                                         market=market,
                                                                         yes_price=yes_price,
                                                                         count=count,
-                                                                        timezone=timezone
+                                                                        timezone=timezone,
+                                                                        
                                                                         )
                     
                     print(f'Max Temp {current_temp_is_max}')
@@ -135,7 +136,7 @@ def scrape_dynamic_table(driver, lr_length, count, scraping_hours, yes_price, lo
                     else:
                         time.sleep(rand)    
                     
-                    is_order_filled = util_functions.order_filled(market)
+                    is_order_filled = util_functions.order_filled(market=market, timezone=timezone)
                     
                     if is_order_filled:
                         logging.info(f'Order filled and saved: {market}')
